@@ -5,7 +5,7 @@ on:
     # Every hour at minute 17.
     # Avoiding minute 0 reduces the chance of GitHub Actions
     # schedule delays during the top-of-hour load.
-    - cron: "17 * * * *"
+    - cron: "*/5 * * * *"
 
   workflow_dispatch:
 
