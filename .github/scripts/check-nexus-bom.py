@@ -146,31 +146,58 @@ def update_pom(current_version, latest_version):
     with open(POM_FILE, "r", encoding="utf-8") as file:
         content = file.read()
 
+    # Find the dependency block containing our BOM.
     dependency_pattern = re.compile(
-        r"(<dependency>\s*"
-        rf"<groupId>\s*{re.escape(GROUP_ID)}\s*</groupId>\s*"
-        rf"<artifactId>\s*{re.escape(ARTIFACT_ID)}\s*</artifactId>\s*"
-        r"<version>\s*)"
-        + re.escape(current_version)
-        + r"(\s*</version>)"
-          r"(\s*</dependency>)",
-        re.MULTILINE,
+        r"<dependency>\s*"
+        r"<groupId>\s*" + re.escape(GROUP_ID) + r"\s*</groupId>\s*"
+                                                r"<artifactId>\s*" + re.escape(ARTIFACT_ID) + r"\s*</artifactId>"
+                                                                                              r"(?P<rest>.*?)"
+                                                                                              r"</dependency>",
+        re.DOTALL,
         )
 
-    updated_content, count = dependency_pattern.subn(
-        rf"\g<1>{latest_version}\g<2>\g<3>",
-        content,
+    match = dependency_pattern.search(content)
+
+    if not match:
+        fail(
+            f"Could not find dependency "
+            f"{GROUP_ID}:{ARTIFACT_ID} in {POM_FILE}"
+        )
+
+    dependency_block = match.group(0)
+
+    # Find the version inside that dependency block.
+    version_pattern = re.compile(
+        r"(<version>\s*)"
+        + re.escape(current_version)
+        + r"(\s*</version>)"
+    )
+
+    updated_dependency_block, version_count = version_pattern.subn(
+        rf"\g<1>{latest_version}\g<2>",
+        dependency_block,
         count=1,
     )
 
-    if count != 1:
+    if version_count != 1:
         fail(
-            "Unable to update the BOM version in pom.xml. "
-            "The dependency structure may have changed."
+            f"Found {GROUP_ID}:{ARTIFACT_ID}, but could not find "
+            f"version {current_version} inside its dependency block."
         )
+
+    updated_content = content.replace(
+        dependency_block,
+        updated_dependency_block,
+        1,
+    )
 
     with open(POM_FILE, "w", encoding="utf-8") as file:
         file.write(updated_content)
+
+    print(
+        f"Successfully updated {GROUP_ID}:{ARTIFACT_ID} "
+        f"from {current_version} to {latest_version}"
+    )
 
 
 def main():
