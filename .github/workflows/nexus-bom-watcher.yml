@@ -1,78 +1,78 @@
-name: Nexus BOM Watcher
+# name: Nexus BOM Watcher
 
-on:
-  schedule:
-    # Every hour at minute 17.
-    # Avoiding minute 0 reduces the chance of GitHub Actions
-    # schedule delays during the top-of-hour load.
-    - cron: "*/5 * * * *"
+# on:
+#   schedule:
+#     # Every hour at minute 17.
+#     # Avoiding minute 0 reduces the chance of GitHub Actions
+#     # schedule delays during the top-of-hour load.
+#     - cron: "*/5 * * * *"
 
-  workflow_dispatch:
+#   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+# permissions:
+#   contents: write
+#   pull-requests: write
 
-concurrency:
-  group: nexus-bom-watcher
-  cancel-in-progress: false
+# concurrency:
+#   group: nexus-bom-watcher
+#   cancel-in-progress: false
 
-jobs:
-  check-nexus-bom:
-    name: Check Nexus BOM
-    runs-on: ubuntu-latest
+# jobs:
+#   check-nexus-bom:
+#     name: Check Nexus BOM
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v6
+#         with:
+#           fetch-depth: 0
 
-      - name: Check Nexus for newer BOM
-        env:
-          NEXUS_BASE_URL: https://fancy-readers-burn.loca.lt
-          NEXUS_USER: ${{ secrets.NEXUS_USER }}
-          NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
+#       - name: Check Nexus for newer BOM
+#         env:
+#           NEXUS_BASE_URL: https://fancy-readers-burn.loca.lt
+#           NEXUS_USER: ${{ secrets.NEXUS_USER }}
+#           NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
 
-          BOM_GROUP_ID: com.suriya.demo
-          BOM_ARTIFACT_ID: enterprise-parent-bom
+#           BOM_GROUP_ID: com.suriya.demo
+#           BOM_ARTIFACT_ID: enterprise-parent-bom
 
-          POM_FILE: pom.xml
+#           POM_FILE: pom.xml
 
-        run: |
-          python3 .github/scripts/check-nexus-bom.py
+#         run: |
+#           python3 .github/scripts/check-nexus-bom.py
 
-      - name: Create or update BOM PR
-        uses: peter-evans/create-pull-request@v8
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Create or update BOM PR
+#         uses: peter-evans/create-pull-request@v8
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
 
-          branch: dependabot/nexus-bom-update
+#           branch: dependabot/nexus-bom-update
 
-          delete-branch: true
+#           delete-branch: true
 
-          commit-message: "[BOM] Update enterprise-parent-bom"
+#           commit-message: "[BOM] Update enterprise-parent-bom"
 
-          title: "[BOM] Update enterprise-parent-bom"
+#           title: "[BOM] Update enterprise-parent-bom"
 
-          body: |
-            ## Nexus BOM Update
+#           body: |
+#             ## Nexus BOM Update
 
-            A newer version of the private Maven BOM was detected in Nexus.
+#             A newer version of the private Maven BOM was detected in Nexus.
 
-            This PR was automatically created by the Nexus BOM watcher.
+#             This PR was automatically created by the Nexus BOM watcher.
 
-            ### Source
+#             ### Source
 
-            Nexus:
-            `https://fancy-readers-burn.loca.lt/repository/maven-releases/`
+#             Nexus:
+#             `https://fancy-readers-burn.loca.lt/repository/maven-releases/`
 
-            Dependency:
-            `com.suriya.demo:enterprise-parent-bom`
+#             Dependency:
+#             `com.suriya.demo:enterprise-parent-bom`
 
-            The watcher checks Nexus hourly and creates or updates
-            this PR when a newer release is available.
+#             The watcher checks Nexus hourly and creates or updates
+#             this PR when a newer release is available.
 
-          labels: |
-            dependencies
-            bom-update
+#           labels: |
+#             dependencies
+#             bom-update
