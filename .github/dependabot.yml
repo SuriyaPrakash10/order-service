@@ -1,35 +1,35 @@
-version: 2
+# version: 2
 
-registries:
-  nexus:
-    type: maven-repository
-    url: https://fancy-readers-burn.loca.lt/repository/maven-releases/
-    username: ${{secrets.NEXUS_USER}}
-    password: ${{secrets.NEXUS_PASS}}
+# registries:
+#   nexus:
+#     type: maven-repository
+#     url: https://fancy-readers-burn.loca.lt/repository/maven-releases/
+#     username: ${{secrets.NEXUS_USER}}
+#     password: ${{secrets.NEXUS_PASS}}
 
-updates:
-  - package-ecosystem: maven
-    directory: "/"
-    registries:
-      - nexus
+# updates:
+#   - package-ecosystem: maven
+#     directory: "/"
+#     registries:
+#       - nexus
 
-    schedule:
-      interval: daily
-      time: "14:35"
-      timezone: "Asia/Kolkata"
+#     schedule:
+#       interval: daily
+#       time: "14:35"
+#       timezone: "Asia/Kolkata"
 
-    cooldown:
-      exclude:
-        - "com.suriya.demo:enterprise-parent-bom"
+#     cooldown:
+#       exclude:
+#         - "com.suriya.demo:enterprise-parent-bom"
 
-    open-pull-requests-limit: 5
+#     open-pull-requests-limit: 5
 
-    allow:
-      - dependency-name: "com.suriya.demo:enterprise-parent-bom"
+#     allow:
+#       - dependency-name: "com.suriya.demo:enterprise-parent-bom"
 
-    commit-message:
-      prefix: "[BOM]"
+#     commit-message:
+#       prefix: "[BOM]"
 
-    labels:
-      - "dependencies"
-      - "bom-update"
+#     labels:
+#       - "dependencies"
+#       - "bom-update"
